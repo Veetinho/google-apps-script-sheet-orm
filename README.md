@@ -9,7 +9,7 @@ This library uses the fast Google Visualization API for read operations and stan
 ## Features
 
 -   **Simple & Expressive API**: Methods like `create`, `find`, `updateById`, `deleteMany` make code more readable.
--   **Fast Read Operations**: Utilizes the Google Visualization API for efficient data retrieval (`find*`, `getAll`, `query`).
+-   **Fast Read Operations**: Utilizes the Google Visualization API for efficient data retrieval (`find*`, `query`).
 -   **Reliable Write Operations**: Uses standard `SpreadsheetApp` services with `LockService` to prevent race conditions.
 -   **Flexible Querying**:
     -   Build structured queries with `findMany()`.
