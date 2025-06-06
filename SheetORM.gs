@@ -114,14 +114,14 @@ function SheetORM(sheetName, options = {}) {
       console.log("_parseGvizResponseTextForHeaders: Input responseText is invalid.")
       return null
     }
-    // Remove the GViz JSONP wrapper "google.visualization.Query.setResponse(...);"
+    // Remove the GViz JSONP wrapper "google.visualization.Query.setResponse(...)"
     // The actual JSON starts after the first '(' and ends before the last ')'
     const startIndex = responseText.indexOf('(')
     const endIndex = responseText.lastIndexOf(')')
 
     if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
       console.log("_parseGvizResponseTextForHeaders: Could not find JSONP wrapper in response text.")
-      // console.log("Response Text was: " + responseText.substring(0, 200)); // Log snippet for debugging
+      // console.log("Response Text was: " + responseText.substring(0, 200)) // Log snippet for debugging
       return null
     }
 
@@ -132,7 +132,7 @@ function SheetORM(sheetName, options = {}) {
       return parsed
     } catch (e) {
       console.log(`_parseGvizResponseTextForHeaders: JSON parsing error: ${e.message}`)
-      // console.log("JSON String was: " + jsonString.substring(0, 200)); // Log snippet
+      // console.log("JSON String was: " + jsonString.substring(0, 200)) // Log snippet
       return null
     }
   }
@@ -255,9 +255,9 @@ function SheetORM(sheetName, options = {}) {
    */
   function _getOrFetchColumnInfo() {
     if (!_columnInfoCache || _columnInfoCache.headersArray.length === 0) { // Check if truly empty
-      // Logger.log("_getOrFetchColumnInfo: Cache miss or empty, attempting to fetch column info...")
+      // console.log("_getOrFetchColumnInfo: Cache miss or empty, attempting to fetch column info...")
       if (!_fetchColumnInfo()) { // _fetchColumnInfo populates _columnInfoCache
-        Logger.log("_getOrFetchColumnInfo: Failed to fetch column info on demand.")
+        console.log("_getOrFetchColumnInfo: Failed to fetch column info on demand.")
         return null
       }
     }
@@ -280,7 +280,7 @@ function SheetORM(sheetName, options = {}) {
       // Wait up to 30 seconds for the lock.
       // Consider making timeout configurable in _config if needed.
       if (!lock.tryLock(_config.lockTime)) {
-        Logger.log("_executeWriteOperation: Could not obtain lock within 30 seconds.")
+        console.log("_executeWriteOperation: Could not obtain lock within 30 seconds.")
         return false // Failed to get lock
       }
 
@@ -291,10 +291,10 @@ function SheetORM(sheetName, options = {}) {
       // if (_gvizDataCache) { _clearGvizDataCache() }
 
       success = true
-      // Logger.log("_executeWriteOperation: Write operation successful.")
+      // console.log("_executeWriteOperation: Write operation successful.")
     } catch (e) {
-      Logger.log(`_executeWriteOperation: Error during write operation: ${e.message}${e.stack ? ' Stack: ' + e.stack : ''}`)
-      success = false; // Ensure success is false on error
+      console.log(`_executeWriteOperation: Error during write operation: ${e.message}${e.stack ? ' Stack: ' + e.stack : ''}`)
+      success = false // Ensure success is false on error
     } finally {
       lock.releaseLock()
     }
@@ -313,13 +313,13 @@ function SheetORM(sheetName, options = {}) {
   function _findRowNumbersByConditions(conditions, findFirst = false) {
     const columnInfo = _getOrFetchColumnInfo()
     if (!columnInfo || columnInfo.headersArray.length === 0) {
-      Logger.log("_findRowNumbersByConditions: Column info not available or sheet has no headers. Cannot find rows by conditions.")
+      console.log("_findRowNumbersByConditions: Column info not available or sheet has no headers. Cannot find rows by conditions.")
       return []
     }
 
     // Validate conditions structure
     if (typeof conditions !== 'object' || conditions === null || Object.keys(conditions).length === 0) {
-      Logger.log("_findRowNumbersByConditions: Conditions parameter must be a non-empty object.")
+      console.log("_findRowNumbersByConditions: Conditions parameter must be a non-empty object.")
       return []
     }
 
@@ -334,12 +334,12 @@ function SheetORM(sheetName, options = {}) {
         conditionValues.push(String(conditions[key])) // Compare as strings
         validConditionFound = true
       } else {
-        Logger.log(`_findRowNumbersByConditions: Warning - Condition key "${key}" is not a valid header name and will be ignored.`)
+        console.log(`_findRowNumbersByConditions: Warning - Condition key "${key}" is not a valid header name and will be ignored.`)
       }
     }
 
     if (!validConditionFound) {
-      Logger.log("_findRowNumbersByConditions: No valid header names found in conditions. Cannot find rows.")
+      console.log("_findRowNumbersByConditions: No valid header names found in conditions. Cannot find rows.")
       return []
     }
 
@@ -347,7 +347,7 @@ function SheetORM(sheetName, options = {}) {
     const lastSheetRow = _ws.getLastRow()
 
     if (lastSheetRow < firstDataRowIndex) {
-      // Logger.log("_findRowNumbersByConditions: No data rows exist in the sheet.")
+      // console.log("_findRowNumbersByConditions: No data rows exist in the sheet.")
       return [] // No data rows to search
     }
 
@@ -393,7 +393,7 @@ function SheetORM(sheetName, options = {}) {
    */
   function _objectToRowArray(recordObject, orderedHeadersArray) {
     if (!recordObject || typeof recordObject !== 'object' || !orderedHeadersArray || !Array.isArray(orderedHeadersArray)) {
-      Logger.log("_objectToRowArray: Invalid input parameters. recordObject must be an object, and orderedHeadersArray must be an array.")
+      console.log("_objectToRowArray: Invalid input parameters. recordObject must be an object, and orderedHeadersArray must be an array.")
       return [] // Or throw an error for critical failure
     }
 
@@ -420,7 +420,7 @@ function SheetORM(sheetName, options = {}) {
    */
   function _objectsToRowsArray(arrayOfRecordObjects, orderedHeadersArray) {
     if (!Array.isArray(arrayOfRecordObjects) || !orderedHeadersArray || !Array.isArray(orderedHeadersArray)) {
-      Logger.log("_objectsToRowsArray: Invalid input parameters. arrayOfRecordObjects and orderedHeadersArray must be arrays.")
+      console.log("_objectsToRowsArray: Invalid input parameters. arrayOfRecordObjects and orderedHeadersArray must be arrays.")
       return [] // Or throw an error
     }
     if (arrayOfRecordObjects.length === 0) {
@@ -433,7 +433,7 @@ function SheetORM(sheetName, options = {}) {
       if (recordObject && typeof recordObject === 'object') {
         rowsArray.push(_objectToRowArray(recordObject, orderedHeadersArray))
       } else {
-        Logger.log(`_objectsToRowsArray: Encountered an invalid item in arrayOfRecordObjects. Item: ${JSON.stringify(recordObject)}. Skipping.`)
+        console.log(`_objectsToRowsArray: Encountered an invalid item in arrayOfRecordObjects. Item: ${JSON.stringify(recordObject)}. Skipping.`)
       }
     }
     return rowsArray
@@ -455,7 +455,7 @@ function SheetORM(sheetName, options = {}) {
     const columnInfo = _getOrFetchColumnInfo() // Ensures we have headerToLetter mapping
 
     if (!columnInfo) {
-      Logger.log("_buildGqlQuery: Column info not available. Cannot build query effectively. Returning 'SELECT *'.")
+      console.log("_buildGqlQuery: Column info not available. Cannot build query effectively. Returning 'SELECT *'.")
       return "SELECT *" // Fallback, though this might fail if sheet is empty.
     }
 
@@ -470,7 +470,7 @@ function SheetORM(sheetName, options = {}) {
       if (validSelectColumns.length > 0) {
         selectClause = `SELECT ${validSelectColumns.join(', ')}`
       } else {
-        Logger.log(`_buildGqlQuery: None of the specified select fields are valid column headers. Defaulting to SELECT *. Fields: ${JSON.stringify(selectFields)}`)
+        console.log(`_buildGqlQuery: None of the specified select fields are valid column headers. Defaulting to SELECT *. Fields: ${JSON.stringify(selectFields)}`)
       }
     }
 
@@ -497,7 +497,7 @@ function SheetORM(sheetName, options = {}) {
               criteria.push(`${columnLetter} = '${value}'`)
             }
           } else {
-            Logger.log(`_buildGqlQuery: WHERE condition field "${fieldName}" is not a valid column header. It will be ignored.`)
+            console.log(`_buildGqlQuery: WHERE condition field "${fieldName}" is not a valid column header. It will be ignored.`)
           }
         }
       }
@@ -524,7 +524,7 @@ function SheetORM(sheetName, options = {}) {
                   orderByParts.push(`${columnLetter}`) // Default ASC
                 }
               } else {
-                Logger.log(`_buildGqlQuery: ORDER BY field "${fieldName}" is not a valid column header. It will be ignored.`)
+                console.log(`_buildGqlQuery: ORDER BY field "${fieldName}" is not a valid column header. It will be ignored.`)
               }
               break // Handle only one field per sortCondition object for simplicity
             }
@@ -552,7 +552,7 @@ function SheetORM(sheetName, options = {}) {
       .filter(Boolean) // Remove empty parts
       .join(' ')
 
-    // Logger.log(`_buildGqlQuery: Constructed GQL: ${fullQuery}`);
+    // console.log(`_buildGqlQuery: Constructed GQL: ${fullQuery}`)
     return fullQuery
   }
 
@@ -564,7 +564,7 @@ function SheetORM(sheetName, options = {}) {
    */
   function _executeGvizQuery(gqlString) {
     if (!gqlString || typeof gqlString !== 'string' || gqlString.trim() === '') {
-      Logger.log("_executeGvizQuery: gqlString parameter must be a non-empty string.")
+      console.log("_executeGvizQuery: gqlString parameter must be a non-empty string.")
       return null
     }
 
@@ -579,19 +579,19 @@ function SheetORM(sheetName, options = {}) {
         method: 'get',
         headers: { 'Authorization': 'Bearer ' + token },
         muteHttpExceptions: true, // Handle HTTP errors manually
-      };
-      // Logger.log(`_executeGvizQuery: Fetching URL: ${gvizUrl}`)
+      }
+      // console.log(`_executeGvizQuery: Fetching URL: ${gvizUrl}`)
       const response = UrlFetchApp.fetch(gvizUrl, params)
       const responseCode = response.getResponseCode()
       const responseText = response.getContentText()
 
       if (responseCode !== 200) {
-        Logger.log(`_executeGvizQuery: GViz request failed. HTTP Status: ${responseCode}. URL: ${gvizUrl}. Response: ${responseText.substring(0, 500)}`)
+        console.log(`_executeGvizQuery: GViz request failed. HTTP Status: ${responseCode}. URL: ${gvizUrl}. Response: ${responseText.substring(0, 500)}`)
         return null
       }
       return responseText
     } catch (e) {
-      Logger.log(`_executeGvizQuery: Error during UrlFetchApp.fetch: ${e.message}. URL: ${gvizUrl}`)
+      console.log(`_executeGvizQuery: Error during UrlFetchApp.fetch: ${e.message}. URL: ${gvizUrl}`)
       return null
     }
   }
@@ -607,21 +607,21 @@ function SheetORM(sheetName, options = {}) {
     const parsedGviz = _parseGvizResponseTextForHeaders(responseText) // Can reuse the basic JSONP parser
 
     if (!parsedGviz) {
-      Logger.log("_parseGvizDataResponse: Initial parsing of GViz response failed.")
+      console.log("_parseGvizDataResponse: Initial parsing of GViz response failed.")
       return null
     }
 
     if (parsedGviz.status === 'error') {
-      Logger.log(`_parseGvizDataResponse: GViz API returned an error. Errors: ${JSON.stringify(parsedGviz.errors)}`)
+      console.log(`_parseGvizDataResponse: GViz API returned an error. Errors: ${JSON.stringify(parsedGviz.errors)}`)
       return null // Or an empty array if preferred for "no data due to error"
     }
 
     if (parsedGviz.status === 'warning' && parsedGviz.warnings) {
-      Logger.log(`_parseGvizDataResponse: GViz API returned warnings: ${JSON.stringify(parsedGviz.warnings)}`)
+      console.log(`_parseGvizDataResponse: GViz API returned warnings: ${JSON.stringify(parsedGviz.warnings)}`)
     }
 
     if (!parsedGviz.table || !parsedGviz.table.cols || !parsedGviz.table.rows) {
-      // Logger.log("_parseGvizDataResponse: GViz response does not contain a valid table structure (cols or rows missing). This might mean no data matched.")
+      // console.log("_parseGvizDataResponse: GViz response does not contain a valid table structure (cols or rows missing). This might mean no data matched.")
       return [] // No data or empty table
     }
 
@@ -631,7 +631,7 @@ function SheetORM(sheetName, options = {}) {
 
     const columnInfo = _getOrFetchColumnInfo() // For type information if needed, though GViz provides it
     if (!columnInfo) {
-      Logger.log("_parseGvizDataResponse: Could not retrieve column info, cannot reliably map results to headers.")
+      console.log("_parseGvizDataResponse: Could not retrieve column info, cannot reliably map results to headers.")
       return null
     }
 
@@ -667,7 +667,7 @@ function SheetORM(sheetName, options = {}) {
                     dateArgs.length > 6 ? parseInt(dateArgs[6], 10) : 0
                   )
                 } catch (dateErr) {
-                  Logger.log(`_parseGvizDataResponse: Error parsing GViz date string "${cell.v}". Using formatted value or original. Error: ${dateErr.message}`)
+                  console.log(`_parseGvizDataResponse: Error parsing GViz date string "${cell.v}". Using formatted value or original. Error: ${dateErr.message}`)
                   cellValue = cell.f || cell.v // Fallback to formatted string or original value
                 }
 
@@ -751,12 +751,12 @@ function SheetORM(sheetName, options = {}) {
 
         if (lastSheetRowWithData >= firstDataRowToDelete) {
           _ws.deleteRows(firstDataRowToDelete, lastSheetRowWithData - firstDataRowToDelete + 1)
-          // Logger.log(`clearData: Deleted rows from ${firstDataRowToDelete} to ${lastSheetRowWithData}.`)
+          // console.log(`clearData: Deleted rows from ${firstDataRowToDelete} to ${lastSheetRowWithData}.`)
         } else {
-          // Logger.log("clearData: No data rows to delete.")
+          // console.log("clearData: No data rows to delete.")
         }
         // Placeholder for clearing any GViz data cache
-        // if (_gvizDataCache) { _clearGvizDataCache(); }
+        // if (_gvizDataCache) { _clearGvizDataCache() }
       })
     },
 
@@ -770,15 +770,15 @@ function SheetORM(sheetName, options = {}) {
     deleteById: function (id) {
       const columnInfo = _getOrFetchColumnInfo()
       if (!columnInfo) {
-        Logger.log("deleteById: Failed to get column information. Cannot proceed.")
+        console.log("deleteById: Failed to get column information. Cannot proceed.")
         return false
       }
       if (!columnInfo.idFieldLetter) {
-        Logger.log(`deleteById: ID field "${_config.idField}" is not configured or not found in sheet headers. Cannot delete by ID.`)
+        console.log(`deleteById: ID field "${_config.idField}" is not configured or not found in sheet headers. Cannot delete by ID.`)
         return false
       }
       if (id === null || id === undefined || (typeof id === 'string' && id.trim() === '')) {
-        Logger.log("deleteById: Provided ID is null, undefined, or empty. Deletion aborted.")
+        console.log("deleteById: Provided ID is null, undefined, or empty. Deletion aborted.")
         return false
       }
 
@@ -788,7 +788,7 @@ function SheetORM(sheetName, options = {}) {
       const rowNumbersToDelete = _findRowNumbersByConditions(conditions, true)
 
       if (rowNumbersToDelete.length === 0) {
-        // Logger.log(`deleteById: Record with ID "${id}" (in field "${_config.idField}") not found.`)
+        // console.log(`deleteById: Record with ID "${id}" (in field "${_config.idField}") not found.`)
         return false // Record not found
       }
 
@@ -796,7 +796,7 @@ function SheetORM(sheetName, options = {}) {
 
       return _executeWriteOperation(() => {
         _ws.deleteRow(rowToDelete)
-        // Logger.log(`deleteById: Successfully deleted record with ID "${id}" from row ${rowToDelete}.`);
+        // console.log(`deleteById: Successfully deleted record with ID "${id}" from row ${rowToDelete}.`)
         // Placeholder for clearing any GViz data cache
         // if (_gvizDataCache) { _clearGvizDataCache() }
       })
@@ -815,7 +815,7 @@ function SheetORM(sheetName, options = {}) {
       const rowNumbersToDelete = _findRowNumbersByConditions(conditions, true) // findFirst = true
 
       if (rowNumbersToDelete.length === 0) {
-        // Logger.log(`delete: No record found matching conditions: ${JSON.stringify(conditions)}.`)
+        // console.log(`delete: No record found matching conditions: ${JSON.stringify(conditions)}.`)
         return false // No record found or invalid conditions
       }
 
@@ -823,7 +823,7 @@ function SheetORM(sheetName, options = {}) {
 
       return _executeWriteOperation(() => {
         _ws.deleteRow(rowToDelete)
-        // Logger.log(`delete: Successfully deleted first record matching conditions from row ${rowToDelete}.`)
+        // console.log(`delete: Successfully deleted first record matching conditions from row ${rowToDelete}.`)
         // Placeholder for clearing any GViz data cache
         // if (_gvizDataCache) { _clearGvizDataCache() }
       })
@@ -843,7 +843,7 @@ function SheetORM(sheetName, options = {}) {
       const rowNumbersToDelete = _findRowNumbersByConditions(conditions, false) // findFirst = false
 
       if (rowNumbersToDelete.length === 0) {
-        // Logger.log(`deleteMany: No records found matching conditions: ${JSON.stringify(conditions)}.`)
+        // console.log(`deleteMany: No records found matching conditions: ${JSON.stringify(conditions)}.`)
         return 0 // No records found or invalid conditions
       }
 
@@ -856,7 +856,7 @@ function SheetORM(sheetName, options = {}) {
         for (const rowNum of rowNumbersToDelete) {
           _ws.deleteRow(rowNum)
         }
-        // Logger.log(`deleteMany: Successfully deleted ${countToDelete} records matching conditions.`)
+        // console.log(`deleteMany: Successfully deleted ${countToDelete} records matching conditions.`)
         // Placeholder for clearing any GViz data cache
         // if (_gvizDataCache) { _clearGvizDataCache() }
       })
@@ -877,37 +877,37 @@ function SheetORM(sheetName, options = {}) {
      */
     create: function (recordObject) {
       if (typeof recordObject !== 'object' || recordObject === null || Object.keys(recordObject).length === 0) {
-        Logger.log("create: recordObject parameter must be a non-empty object.")
+        console.log("create: recordObject parameter must be a non-empty object.")
         return false
       }
 
-      const columnInfo = _getOrFetchColumnInfo();
+      const columnInfo = _getOrFetchColumnInfo()
       if (!columnInfo || !columnInfo.headersArray || columnInfo.headersArray.length === 0) {
-        Logger.log("create: Column info not available or sheet has no headers. Cannot create record.")
-        return false;
+        console.log("create: Column info not available or sheet has no headers. Cannot create record.")
+        return false
       }
 
       const idFieldName = _config.idField
       if (!recordObject.hasOwnProperty(idFieldName)) {
-        Logger.log(`create: Record object is missing the required ID field "${idFieldName}". Record not created.`)
+        console.log(`create: Record object is missing the required ID field "${idFieldName}". Record not created.`)
         return false
       }
-      const idValue = recordObject[idFieldName];
+      const idValue = recordObject[idFieldName]
       if (idValue === null || idValue === undefined || String(idValue).trim() === "") {
-        Logger.log(`create: The ID field "${idFieldName}" must not be null, undefined, or an empty string. Received: "${idValue}". Record not created.`)
+        console.log(`create: The ID field "${idFieldName}" must not be null, undefined, or an empty string. Received: "${idValue}". Record not created.`)
         return false
       }
 
       const rowArray = _objectToRowArray(recordObject, columnInfo.headersArray)
 
       if (rowArray.length !== columnInfo.headersArray.length) {
-        Logger.log("create: Failed to convert recordObject to a valid row array (length mismatch). Record not created.")
+        console.log("create: Failed to convert recordObject to a valid row array (length mismatch). Record not created.")
         return false
       }
 
       return _executeWriteOperation(() => {
         _ws.appendRow(rowArray)
-        // Logger.log(`create: Successfully appended new record. ID [${idFieldName}]: "${idValue}"`)
+        // console.log(`create: Successfully appended new record. ID [${idFieldName}]: "${idValue}"`)
       })
     },
 
@@ -924,13 +924,13 @@ function SheetORM(sheetName, options = {}) {
      */
     createMany: function (arrayOfRecordObjects) {
       if (!Array.isArray(arrayOfRecordObjects) || arrayOfRecordObjects.length === 0) {
-        Logger.log("createMany: arrayOfRecordObjects parameter must be a non-empty array.")
+        console.log("createMany: arrayOfRecordObjects parameter must be a non-empty array.")
         return 0
       }
 
       const columnInfo = _getOrFetchColumnInfo()
       if (!columnInfo || !columnInfo.headersArray || columnInfo.headersArray.length === 0) {
-        Logger.log("createMany: Column info not available or sheet has no headers. Cannot create records.")
+        console.log("createMany: Column info not available or sheet has no headers. Cannot create records.")
         return 0
       }
 
@@ -938,16 +938,16 @@ function SheetORM(sheetName, options = {}) {
       for (let i = 0; i < arrayOfRecordObjects.length; i++) {
         const recordObject = arrayOfRecordObjects[i]
         if (!recordObject || typeof recordObject !== 'object') {
-          Logger.log(`createMany: Item at index ${i} is not a valid object. Batch creation aborted.`)
+          console.log(`createMany: Item at index ${i} is not a valid object. Batch creation aborted.`)
           return 0
         }
         if (!recordObject.hasOwnProperty(idFieldName)) {
-          Logger.log(`createMany: Record object at index ${i} is missing the required ID field "${idFieldName}". Batch creation aborted.`)
+          console.log(`createMany: Record object at index ${i} is missing the required ID field "${idFieldName}". Batch creation aborted.`)
           return 0
         }
         const idValue = recordObject[idFieldName]
         if (idValue === null || idValue === undefined || String(idValue).trim() === "") {
-          Logger.log(`createMany: The ID field "${idFieldName}" in record object at index ${i} must not be null, undefined, or an empty string. Received: "${idValue}". Batch creation aborted.`)
+          console.log(`createMany: The ID field "${idFieldName}" in record object at index ${i} must not be null, undefined, or an empty string. Received: "${idValue}". Batch creation aborted.`)
           return 0
         }
       }
@@ -955,15 +955,15 @@ function SheetORM(sheetName, options = {}) {
       const rowsDataArray = _objectsToRowsArray(arrayOfRecordObjects, columnInfo.headersArray)
 
       if (rowsDataArray.length === 0 && arrayOfRecordObjects.length > 0) {
-        Logger.log("createMany: No valid rows could be converted from arrayOfRecordObjects (this might indicate all input objects were problematic despite passing initial ID check, or an issue in _objectsToRowsArray).")
+        console.log("createMany: No valid rows could be converted from arrayOfRecordObjects (this might indicate all input objects were problematic despite passing initial ID check, or an issue in _objectsToRowsArray).")
         return 0
       }
       if (rowsDataArray.length > 0 && (rowsDataArray[0].length !== columnInfo.headersArray.length)) {
-        Logger.log("createMany: Converted rows do not match header column count. Batch creation aborted.");
+        console.log("createMany: Converted rows do not match header column count. Batch creation aborted.")
         return 0
       }
       if (rowsDataArray.length !== arrayOfRecordObjects.length) {
-        Logger.log("createMany: The number of converted rows does not match the number of input objects. This might indicate some objects were skipped due to errors in _objectsToRowsArray. Batch creation aborted for safety.")
+        console.log("createMany: The number of converted rows does not match the number of input objects. This might indicate some objects were skipped due to errors in _objectsToRowsArray. Batch creation aborted for safety.")
         return 0
       }
 
@@ -975,7 +975,7 @@ function SheetORM(sheetName, options = {}) {
         const lastRowWithContent = _ws.getLastRow()
         const startInsertRow = lastRowWithContent + 1
         _ws.getRange(startInsertRow, 1, numRecordsToAdd, numColumns).setValues(rowsDataArray)
-        // Logger.log(`createMany: Attempted to add ${numRecordsToAdd} new records starting at row ${startInsertRow}.`)
+        // console.log(`createMany: Attempted to add ${numRecordsToAdd} new records starting at row ${startInsertRow}.`)
       })
 
       return success ? numRecordsToAdd : 0
@@ -996,27 +996,27 @@ function SheetORM(sheetName, options = {}) {
      */
     updateById: function (id, fieldsToUpdate) {
       if (id === null || id === undefined || (typeof id === 'string' && id.trim() === '')) {
-        Logger.log("updateById: Provided ID is null, undefined, or empty. Update aborted.")
+        console.log("updateById: Provided ID is null, undefined, or empty. Update aborted.")
         return false
       }
       if (typeof fieldsToUpdate !== 'object' || fieldsToUpdate === null || Object.keys(fieldsToUpdate).length === 0) {
-        Logger.log("updateById: fieldsToUpdate parameter must be a non-empty object. Update aborted.")
+        console.log("updateById: fieldsToUpdate parameter must be a non-empty object. Update aborted.")
         return false
       }
 
       const columnInfo = _getOrFetchColumnInfo()
       if (!columnInfo) {
-        Logger.log("updateById: Failed to get column information. Cannot proceed with update.")
+        console.log("updateById: Failed to get column information. Cannot proceed with update.")
         return false
       }
       if (!columnInfo.idFieldLetter) { // Check if idField was successfully mapped
-        Logger.log(`updateById: ID field "${_config.idField}" is not configured properly or not found in sheet headers. Cannot update by ID.`)
+        console.log(`updateById: ID field "${_config.idField}" is not configured properly or not found in sheet headers. Cannot update by ID.`)
         return false
       }
 
       const idFieldNameFromCache = columnInfo.letterToHeader[columnInfo.idFieldLetter]
       if (fieldsToUpdate.hasOwnProperty(idFieldNameFromCache)) {
-        Logger.log(`updateById: The ID field "${idFieldNameFromCache}" cannot be part of the fieldsToUpdate object. Update aborted.`)
+        console.log(`updateById: The ID field "${idFieldNameFromCache}" cannot be part of the fieldsToUpdate object. Update aborted.`)
         return false
       }
 
@@ -1026,7 +1026,7 @@ function SheetORM(sheetName, options = {}) {
       const rowNumbersToUpdate = _findRowNumbersByConditions(conditions, true) // findFirst = true
 
       if (rowNumbersToUpdate.length === 0) {
-        // Logger.log(`updateById: Record with ID "${id}" (field: "${idFieldNameFromCache}") not found.`)
+        // console.log(`updateById: Record with ID "${id}" (field: "${idFieldNameFromCache}") not found.`)
         return false // Record not found
       }
       const rowToUpdate = rowNumbersToUpdate[0] // Get the specific row number
@@ -1045,13 +1045,13 @@ function SheetORM(sheetName, options = {}) {
             })
             hasValidUpdates = true
           } else {
-            Logger.log(`updateById: Warning - Field "${fieldName}" in fieldsToUpdate is not a valid header name and will be ignored.`)
+            console.log(`updateById: Warning - Field "${fieldName}" in fieldsToUpdate is not a valid header name and will be ignored.`)
           }
         }
       }
 
       if (!hasValidUpdates) {
-        Logger.log("updateById: No valid fields to update were provided (after filtering against known headers). No update performed.")
+        console.log("updateById: No valid fields to update were provided (after filtering against known headers). No update performed.")
         return false // No actual changes to make
       }
 
@@ -1059,7 +1059,7 @@ function SheetORM(sheetName, options = {}) {
         for (const update of updatesToPerform) {
           _ws.getRange(update.row, update.col).setValue(update.value)
         }
-        // Logger.log(`updateById: Successfully updated record with ID "${id}" at row ${rowToUpdate}. ${updatesToPerform.length} fields modified.`)
+        // console.log(`updateById: Successfully updated record with ID "${id}" at row ${rowToUpdate}. ${updatesToPerform.length} fields modified.`)
       })
     },
 
@@ -1078,29 +1078,29 @@ function SheetORM(sheetName, options = {}) {
      */
     update: function (conditions, newValues) {
       if (typeof conditions !== 'object' || conditions === null || Object.keys(conditions).length === 0) {
-        Logger.log("update: 'conditions' parameter must be a non-empty object.")
+        console.log("update: 'conditions' parameter must be a non-empty object.")
         return false
       }
       if (typeof newValues !== 'object' || newValues === null || Object.keys(newValues).length === 0) {
-        Logger.log("update: 'newValues' parameter must be a non-empty object.")
+        console.log("update: 'newValues' parameter must be a non-empty object.")
         return false
       }
 
-      const columnInfo = _getOrFetchColumnInfo();
+      const columnInfo = _getOrFetchColumnInfo()
       if (!columnInfo) {
-        Logger.log("update: Failed to get column information. Cannot proceed.")
+        console.log("update: Failed to get column information. Cannot proceed.")
         return false
       }
 
       if (columnInfo.idFieldLetter && newValues.hasOwnProperty(columnInfo.letterToHeader[columnInfo.idFieldLetter])) {
-        Logger.log(`update: The ID field "${columnInfo.letterToHeader[columnInfo.idFieldLetter]}" cannot be updated. Please remove it from the newValues object. Update aborted.`)
+        console.log(`update: The ID field "${columnInfo.letterToHeader[columnInfo.idFieldLetter]}" cannot be updated. Please remove it from the newValues object. Update aborted.`)
         return false
       }
 
       const rowNumbersToUpdate = _findRowNumbersByConditions(conditions, true) // findFirst = true
 
       if (rowNumbersToUpdate.length === 0) {
-        // Logger.log(`update: No record found matching conditions: ${JSON.stringify(conditions)}.`)
+        // console.log(`update: No record found matching conditions: ${JSON.stringify(conditions)}.`)
         return false // No record found or invalid conditions
       }
       const rowToUpdate = rowNumbersToUpdate[0]
@@ -1118,13 +1118,13 @@ function SheetORM(sheetName, options = {}) {
             })
             hasValidUpdates = true
           } else {
-            Logger.log(`update: Warning - Field "${fieldName}" in newValues is not a valid header name and will be ignored.`)
+            console.log(`update: Warning - Field "${fieldName}" in newValues is not a valid header name and will be ignored.`)
           }
         }
       }
 
       if (!hasValidUpdates) {
-        Logger.log("update: No valid fields to update were provided in newValues (after filtering against known headers). No update performed.")
+        console.log("update: No valid fields to update were provided in newValues (after filtering against known headers). No update performed.")
         return false
       }
 
@@ -1132,7 +1132,7 @@ function SheetORM(sheetName, options = {}) {
         for (const update of updatesToPerform) {
           _ws.getRange(update.row, update.col).setValue(update.value)
         }
-        // Logger.log(`update: Successfully updated first record matching conditions at row ${rowToUpdate}. ${updatesToPerform.length} fields modified.`)
+        // console.log(`update: Successfully updated first record matching conditions at row ${rowToUpdate}. ${updatesToPerform.length} fields modified.`)
       })
     },
 
@@ -1151,29 +1151,29 @@ function SheetORM(sheetName, options = {}) {
      */
     updateMany: function (conditions, newValues) {
       if (typeof conditions !== 'object' || conditions === null || Object.keys(conditions).length === 0) {
-        Logger.log("updateMany: 'conditions' parameter must be a non-empty object.")
+        console.log("updateMany: 'conditions' parameter must be a non-empty object.")
         return 0
       }
       if (typeof newValues !== 'object' || newValues === null || Object.keys(newValues).length === 0) {
-        Logger.log("updateMany: 'newValues' parameter must be a non-empty object.")
+        console.log("updateMany: 'newValues' parameter must be a non-empty object.")
         return 0
       }
 
       const columnInfo = _getOrFetchColumnInfo()
       if (!columnInfo) {
-        Logger.log("updateMany: Failed to get column information. Cannot proceed.")
+        console.log("updateMany: Failed to get column information. Cannot proceed.")
         return 0
       }
 
       if (columnInfo.idFieldLetter && newValues.hasOwnProperty(columnInfo.letterToHeader[columnInfo.idFieldLetter])) {
-        Logger.log(`updateMany: The ID field "${columnInfo.letterToHeader[columnInfo.idFieldLetter]}" cannot be updated. Please remove it from the newValues object. Update aborted.`)
+        console.log(`updateMany: The ID field "${columnInfo.letterToHeader[columnInfo.idFieldLetter]}" cannot be updated. Please remove it from the newValues object. Update aborted.`)
         return 0
       }
 
       const rowNumbersToUpdate = _findRowNumbersByConditions(conditions, false) // findFirst = false
 
       if (rowNumbersToUpdate.length === 0) {
-        // Logger.log(`updateMany: No records found matching conditions: ${JSON.stringify(conditions)}.`)
+        // console.log(`updateMany: No records found matching conditions: ${JSON.stringify(conditions)}.`)
         return 0 // No records found or invalid conditions
       }
 
@@ -1189,13 +1189,13 @@ function SheetORM(sheetName, options = {}) {
             })
             hasValidFieldsToUpdate = true
           } else {
-            Logger.log(`updateMany: Warning - Field "${fieldName}" in newValues is not a valid header name and will be ignored.`)
+            console.log(`updateMany: Warning - Field "${fieldName}" in newValues is not a valid header name and will be ignored.`)
           }
         }
       }
 
       if (!hasValidFieldsToUpdate) {
-        Logger.log("updateMany: No valid fields to update were provided in newValues (after filtering against known headers). No records updated.")
+        console.log("updateMany: No valid fields to update were provided in newValues (after filtering against known headers). No records updated.")
         return 0
       }
 
@@ -1206,7 +1206,7 @@ function SheetORM(sheetName, options = {}) {
             _ws.getRange(rowNum, update.col).setValue(update.value)
           }
         }
-        // Logger.log(`updateMany: Successfully processed updates for ${countToUpdate} records matching conditions. ${fieldUpdatesToApply.length} fields targeted per record.`)
+        // console.log(`updateMany: Successfully processed updates for ${countToUpdate} records matching conditions. ${fieldUpdatesToApply.length} fields targeted per record.`)
       })
 
       return success ? countToUpdate : 0
@@ -1222,17 +1222,17 @@ function SheetORM(sheetName, options = {}) {
      */
     findById: function (id) {
       if (id === null || id === undefined || (typeof id === 'string' && id.trim() === '')) {
-        Logger.log("findById: Provided ID is null, undefined, or empty. Cannot find record.")
+        console.log("findById: Provided ID is null, undefined, or empty. Cannot find record.")
         return null
       }
 
       const columnInfo = _getOrFetchColumnInfo()
       if (!columnInfo) {
-        Logger.log("findById: Failed to get column information. Cannot proceed.")
+        console.log("findById: Failed to get column information. Cannot proceed.")
         return null
       }
       if (!columnInfo.idFieldLetter) {
-        Logger.log(`findById: ID field "${_config.idField}" is not configured or not found in sheet headers. Cannot find by ID.`)
+        console.log(`findById: ID field "${_config.idField}" is not configured or not found in sheet headers. Cannot find by ID.`)
         return null
       }
 
@@ -1261,13 +1261,13 @@ function SheetORM(sheetName, options = {}) {
      */
     find: function (conditions) {
       if (typeof conditions !== 'object' || conditions === null || Object.keys(conditions).length === 0) {
-        Logger.log("find: 'conditions' parameter must be a non-empty object.")
+        console.log("find: 'conditions' parameter must be a non-empty object.")
         return null
       }
       // To ensure _buildGqlQuery can validate condition keys against actual headers
       const columnInfo = _getOrFetchColumnInfo()
       if (!columnInfo) {
-        Logger.log("find: Column info not available. Cannot proceed.")
+        console.log("find: Column info not available. Cannot proceed.")
         return null
       }
       // Check if any condition key is actually a header
@@ -1279,7 +1279,7 @@ function SheetORM(sheetName, options = {}) {
         }
       }
       if (!hasValidConditionKey) {
-        Logger.log(`find: None of the keys in 'conditions' object match known headers. Conditions: ${JSON.stringify(conditions)}`)
+        console.log(`find: None of the keys in 'conditions' object match known headers. Conditions: ${JSON.stringify(conditions)}`)
         return null
       }
 
@@ -1332,13 +1332,13 @@ function SheetORM(sheetName, options = {}) {
      * Must be a non-empty string.
      * @example
      * // Simple select all from specific columns
-     * const data = orm.query("select [Name], [Email]");
+     * const data = orm.query("select [Name], [Email]")
      *
      * // Query with conditions (WHERE clause)
-     * const activeUsers = orm.query("select * where [Age] > 25 and [Status] = 'Active'");
+     * const activeUsers = orm.query("select * where [Age] > 25 and [Status] = 'Active'")
      *
      * // Complex query with OR, LIKE, and sorting
-     * const managers = orm.query("select [Name], [Position] where [Salary] >= 50000 and ([Position] like '%Manager%' or [Position] starts with 'Lead') order by [Name] asc limit 10");
+     * const managers = orm.query("select [Name], [Position] where [Salary] >= 50000 and ([Position] like '%Manager%' or [Position] starts with 'Lead') order by [Name] asc limit 10")
      *
      * @returns {Object[]|null} An array of record objects that match the query.
      * Returns an empty array if no records match the query.
@@ -1347,7 +1347,7 @@ function SheetORM(sheetName, options = {}) {
      */
     query: function (customQueryString) {
       if (!customQueryString || typeof customQueryString !== 'string' || customQueryString.trim() === '') {
-        Logger.log("query: customQueryString parameter must be a non-empty string.")
+        console.log("query: customQueryString parameter must be a non-empty string.")
         return null
       }
 
@@ -1357,7 +1357,7 @@ function SheetORM(sheetName, options = {}) {
         gqlString = _translateCustomQueryToGql(customQueryString)
       } catch (e) {
         // Catch errors thrown by _translateCustomQueryToGql (e.g., invalid column name)
-        Logger.log(`query: Error during query translation: ${e.message}`)
+        console.log(`query: Error during query translation: ${e.message}`)
         return null // Return null to indicate translation failure
       }
 
