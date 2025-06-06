@@ -31,11 +31,11 @@ Imagine you have a sheet named "Tasks" with columns: "id", "TaskName", "Status",
 function myFunction() {
   // 1. Initialize the ORM for your sheet
   // Make sure to configure the 'idField' if it's not named 'id'.
-  const taskSheet = SheetORM("Tasks", { idField: "id" });
+  const taskSheet = SheetORM("Tasks", { idField: "id" })
   
   if (!taskSheet) {
-    Logger.log("Failed to initialize SheetORM. Check sheet name and permissions.");
-    return;
+    console.log("Failed to initialize SheetORM. Check sheet name and permissions.")
+    return
   }
 
   // 2. Create a new record
@@ -45,31 +45,31 @@ function myFunction() {
     TaskName: "Finalize the library documentation",
     Status: "In Progress",
     Priority: "High"
-  });
+  })
 
   if (wasCreated) {
-    Logger.log("New task created successfully!");
+    console.log("New task created successfully!")
   }
 
   // 3. Find a record by its ID
-  const foundTask = taskSheet.findById(newId);
+  const foundTask = taskSheet.findById(newId)
   if (foundTask) {
-    Logger.log("Found task: " + foundTask.TaskName); // Logs: "Found task: Finalize the library documentation"
+    console.log("Found task: " + foundTask.TaskName) // Logs: "Found task: Finalize the library documentation"
   }
 
   // 4. Update a record by its ID
   const wasUpdated = taskSheet.updateById(newId, {
     Status: "Completed"
-  });
+  })
   
   if (wasUpdated) {
-      Logger.log("Task status updated to 'Completed'.");
+    console.log("Task status updated to 'Completed'.")
   }
 
   // 5. Delete the record
-  const wasDeleted = taskSheet.deleteById(newId);
+  const wasDeleted = taskSheet.deleteById(newId)
   if (wasDeleted) {
-    Logger.log("Task has been deleted.");
+    console.log("Task has been deleted.")
   }
 }
 ```
@@ -94,8 +94,7 @@ function myFunction() {
 
 * `findById(id)`: Finds a single record by its unique ID. Returns `object` or `null`.
 * `find(conditions)`: Finds the first record matching the `conditions` object. Returns `object` or `null`.
-* `findMany(queryOptions)`: Finds all records matching the `queryOptions`. Returns `object[]`. `queryOptions` can include `where`, `select`, `orderBy`, `limit`, and `offset`.
-* `getAll()`: Retrieves all records from the sheet. Returns `object[]`.
+* `findMany(queryOptions)`: Finds all records matching the `queryOptions`. Returns `object[]`. `queryOptions` can include `where`, `select`, `orderBy`, `limit`, and `offset`. `findMany()` returns all records of the sheet.
 * `query(customQueryString)`: Executes a raw query with column names in brackets (e.g., `select [Name] where [Age] > 30`). Returns `object[]`.
 
 ### Update
